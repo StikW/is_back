@@ -9,14 +9,20 @@ import {
 
 const router = Router();
 
-// Obtener favoritos del usuario
-router.get('/', authenticateToken, getFavorites);
+// GET todos los favoritos del usuario
+router.get('/', authenticateToken, async (req, res) => {
+  res.json({ message: 'Endpoint de favoritos - GET' });
+});
 
-// Agregar a favoritos
-router.post('/:propertyId', authenticateToken, addFavorite);
+// POST agregar a favoritos
+router.post('/:propertyId', authenticateToken, async (req, res) => {
+  res.json({ message: `Endpoint para agregar propiedad ${req.params.propertyId} a favoritos - POST` });
+});
 
-// Eliminar de favoritos
-router.delete('/:propertyId', authenticateToken, removeFavorite);
+// DELETE eliminar de favoritos
+router.delete('/:propertyId', authenticateToken, async (req, res) => {
+  res.json({ message: `Endpoint para eliminar propiedad ${req.params.propertyId} de favoritos - DELETE` });
+});
 
 // Toggle favorito (agregar/eliminar)
 router.post('/toggle/:propertyId', authenticateToken, toggleFavorite);

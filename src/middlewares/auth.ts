@@ -1,40 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_secreta_temporal';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-interface JwtPayload {
-  id: number;
-  email: string;
-  role: string;
+export interface AuthRequest extends Request {
+  user?: any;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No se proporcionó token de autenticación' });
   }
-}
 
-export const authenticateToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(' ')[1];
-
-    if (!token) {
-      return res.status(401).json({ message: 'Token no proporcionado' });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    req.user = decoded;
+    const user = jwt.verify(token, JWT_SECRET);
+    req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Token inválido' });
+    return res.status(403).json({ message: 'Token inválido o expirado' });
   }
 };
 
